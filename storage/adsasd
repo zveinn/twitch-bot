@@ -1,0 +1,31 @@
+package main
+
+import (
+	"fmt"
+
+	twitchpubsub "github.com/pajlada/go-twitch-pubsub"
+)
+
+func main() {
+	pubsubClient := twitchpubsub.NewClient(twitchpubsub.DefaultHost)
+
+	userID := "525520445"
+	channelID := "525520445"
+
+	// OAuth token for userID with chat_login (or chat:read?) scope
+	userToken := "qlj0avp78ddd9j9z9dg495shpgqpx1"
+
+	// Listen to a topic
+	pubsubClient.Listen(twitchpubsub.BitsEventTopic(channelID), userToken)
+	pubsubClient.Listen(twitchpubsub.ModerationActionTopic(userID, channelID), userToken)
+
+	// Specify what callback is called when that topic receives a message
+	pubsubClient.OnModerationAction(func(channelID string, event *twitchpubsub.ModerationAction) {
+		fmt.Println(event.CreatedBy, event.ModerationAction, "on", event.TargetUserID, event.Type)
+	})
+
+	go pubsubClient.Start()
+
+	c := make(chan bool)
+	<-c
+}

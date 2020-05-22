@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>WebSocket</title>
+    <style>
+        html {
+            width: 1920px;
+            height: 1080px;
+        }
+
+        body {
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+        .systemMSG {
+            font-size: 22px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            color: rgb(255, 255, 192);
+            width: fit-content;
+        }
+
+        .output {
+            padding-left: 5px;
+            display: table;
+            width:500px;
+            position: absolute;
+            top:250px;
+        }
+
+        .msg {
+            background-color: rgba(27, 27, 27, 0.219);
+            width: fit-content;
+            max-width: 400px !important;
+            color: rgb(255, 255, 255);
+            float: left;
+            margin-right: 30%;
+        }
+
+        .user {
+            background-color: rgba(27, 27, 27, 0.52);
+            color: rgb(255, 155, 155);
+            float: left;
+            font-weight: bold !important;
+            font-size: 1.1em !important;
+        }
+
+        .data {
+            background-color: rgba(27, 27, 27, 0.52);
+            float: left;
+
+        }
+
+        .font {
+            font-family: monospace !important;
+            text-rendering: optimizeLegibility;
+            float: left;
+            letter-spacing: 0px;
+            -webkit-font-smoothing: subpixel-antialiased;
+            font-weight: 100;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <p id="output" class="output"></p>
+
+    <script>
+
+
+        ws = new WebSocket("ws://localhost:1234/ws")
+
+        ws.onopen = function () {
+            console.log('Connected')
+        }
+
+        ws.onmessage = function (evt) {
+            var out = document.getElementById('output');
+            if (evt.data.includes("system::")) {
+                var final = evt.data.split("::")
+                out.innerHTML += "<div class='systemMSG font'> " + final[1] + ' </div>';
+            } else {
+                var final = evt.data.split(":xx:")
+                console.log(final)
+                out.innerHTML += "<div class='msg'> <div class='user font'>" + final[0] + ":</div> <div class='data font'>" + " " + final[1] + '</div>  </div>';
+            }
+        }
+    </script>
+</body>
+
+</html>
