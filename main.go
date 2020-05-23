@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/andersfylling/disgord"
 	"github.com/gempir/go-twitch-irc"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
@@ -16,120 +19,6 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-var WSMAP = make(map[string]*websocket.Conn)
-var oneMeter = 200
-
-// 500 ...
-// 45 daagrees in the turn
-// 2 meters foward
-// 1 meter backwards
-
-func PressKey(kb keybd_event.KeyBonding, controlValue int) {
-	kb.Press()
-	time.Sleep(time.Duration(controlValue) * time.Millisecond)
-	kb.Release()
-}
-
-func CheckVolumeControls(kb keybd_event.KeyBonding, message twitch.PrivateMessage) {
-
-	if strings.Contains("!next", message.Message) {
-		kb.SetKeys(keybd_event.VK_MEDIA_NEXT_TRACK)
-		PressKey(kb, 0)
-		return
-	}
-
-	if strings.Contains("!prev", message.Message) {
-		kb.SetKeys(keybd_event.VK_MEDIA_NEXT_TRACK)
-		PressKey(kb, 0)
-		return
-	}
-
-	if strings.Contains("!play", message.Message) {
-		kb.SetKeys(keybd_event.VK_MEDIA_PLAY_PAUSE)
-		PressKey(kb, 0)
-		return
-	}
-
-	// splitMessage := strings.Split(message.Message, " ")
-	// if len(splitMessage) < 2 {
-	// 	return
-	// }
-	// controlValue, err := strconv.Atoi(splitMessage[1])
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return
-	// }
-
-	if strings.Contains("!volumeup", message.Message) {
-		for i := 0; i <= 10; i++ {
-			kb.SetKeys(keybd_event.VK_VOLUME_UP)
-			PressKey(kb, 0)
-		}
-		return
-	}
-
-	if strings.Contains("!volumedown", message.Message) {
-		for i := 0; i <= 10; i++ {
-			kb.SetKeys(keybd_event.VK_VOLUME_DOWN)
-			PressKey(kb, 0)
-		}
-		return
-	}
-}
-
-func CheckingForControls(kb keybd_event.KeyBonding, message twitch.PrivateMessage) {
-
-	if strings.Contains("!mount", message.Message) {
-		kb.SetKeys(keybd_event.VK_V)
-		PressKey(kb, 0)
-		return
-	} else if strings.Contains(message.Message, "!jump") {
-		kb.SetKeys(keybd_event.VK_SPACE)
-		PressKey(kb, 0)
-		return
-	} else if strings.Contains(message.Message, "!inventory") {
-		kb.SetKeys(keybd_event.VK_B)
-		PressKey(kb, 0)
-		return
-	} else if strings.Contains(message.Message, "!dance") {
-		kb.SetKeys(keybd_event.VK_K)
-		PressKey(kb, 0)
-		return
-	}
-
-	splitMessage := strings.Split(message.Message, " ")
-	if len(splitMessage) < 2 {
-		return
-	}
-	controlValue, err := strconv.Atoi(splitMessage[1])
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if strings.Contains(message.Message, "!w") {
-		kb.SetKeys(keybd_event.VK_W)
-		PressKey(kb, controlValue*oneMeter)
-	} else if strings.Contains(message.Message, "!s") {
-		kb.SetKeys(keybd_event.VK_S)
-		PressKey(kb, controlValue*(oneMeter*2))
-	} else if strings.Contains(message.Message, "!a") {
-		kb.SetKeys(keybd_event.VK_A)
-		PressKey(kb, controlValue*10)
-	} else if strings.Contains(message.Message, "!d") {
-		kb.SetKeys(keybd_event.VK_D)
-		PressKey(kb, controlValue*10)
-	}
-}
-
-func CheckForSocials(kb keybd_event.KeyBonding, message twitch.PrivateMessage, client *twitch.Client) {
-	if strings.Contains(message.Message, "!twitter") {
-		SendCustomSystemMessage("ZENDROIDlive", "https://www.twitter.com/zkynetio", client)
-		SendCustomWhisper(message.User.Name, "https://www.twitter.com/zkynetio", client)
-	} else if strings.Contains(message.Message, "!youtube") {
-		SendCustomSystemMessage("ZENDROIDlive", "https://www.youtube.com/channel/UCW6eiMiVqYroPX1qiosAbnQ?view_as=subscriber", client)
-		SendCustomWhisper(message.User.Name, "https://www.youtube.com/channel/UCW6eiMiVqYroPX1qiosAbnQ?view_as=subscriber", client)
-	}
-}
 func main() {
 
 	err := godotenv.Load()
@@ -137,12 +26,9 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	e := echo.New()
-	e.Static("/", "./ws.html")
-	e.GET("/ws", hello)
-	go e.Start(":1234")
+	LoadMaps()
 
-	kb, err := keybd_event.NewKeyBonding()
+	KEYBONDING, err = keybd_event.NewKeyBonding()
 	if err != nil {
 		panic(err)
 	}
@@ -152,29 +38,143 @@ func main() {
 		time.Sleep(2 * time.Second)
 	}
 
-	client := twitch.NewClient("zendroidlive", os.Getenv("TWITCH_KEY"))
-	client.Join("zendroidlive")
-	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		fmt.Println(message)
-		log.Println("CONTENT:", message.Message)
-		for _, v := range WSMAP {
-			websocket.Message.Send(v, message.User.DisplayName+":xx:"+message.Message)
-		}
-		CheckVolumeControls(kb, message)
-		CheckingForControls(kb, message)
-		CheckForSocials(kb, message, client)
-	})
+	// Start twitch client
+	go func() {
+		TWITCHclient = twitch.NewClient("zendroidlive", os.Getenv("TWITCH_KEY"))
+		TWITCHclient.Join("zendroidlive")
+		TWITCHclient.OnPrivateMessage(twitchMessageHandler)
 
-	err = client.Connect()
+		err = TWITCHclient.Connect()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	// Start discord client
+	go func() {
+		DISCORDclient = disgord.New(disgord.Config{
+			BotToken: os.Getenv("DISCORD_KEY"),
+		})
+
+		if err = DISCORDclient.Connect(context.Background()); err != nil {
+			log.Println(err)
+			return
+		}
+
+		defer DISCORDclient.Disconnect()
+		log.Println("starting discord listener.")
+		DISCORDclient.On(disgord.EvtMessageCreate, discordMessageHandler)
+		// TODO: implement a watcher
+		for {
+			time.Sleep(time.Minute * 1)
+		}
+	}()
+
+	e := echo.New()
+	e.Static("/", "./ws.html")
+	e.GET("/ws", hello)
+	e.Start(":1234")
+}
+
+func PressKey(controlValue int) {
+	err := KEYBONDING.Press()
 	if err != nil {
-		panic(err)
+		log.Println("KEYPRESSERR:", err)
+		return
+	}
+	time.Sleep(time.Duration(controlValue) * time.Millisecond)
+	err = KEYBONDING.Release()
+	if err != nil {
+		log.Println("KEYPRESSERR:", err)
+		return
 	}
 }
-func SendCustomWhisper(user string, msg string, client *twitch.Client) {
-	client.Whisper(user, msg)
+
+// 500 ...
+// 45 daagrees in the turn
+// 2 meters foward
+// 1 meter backwards
+func TriggerControls(message string) {
+	var controlValue = 0
+	var err error
+	var totalButtonPresses = 1
+	splitMessage := strings.Split(message, " ")
+	if len(splitMessage) > 1 {
+		controlValue, err = strconv.Atoi(splitMessage[1])
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+
+	// if we don't find any controls, go back
+	if keyboardCommandsToActions[splitMessage[0]] == 0 {
+		return
+	}
+
+	if strings.Contains("!volumeup", message) {
+		totalButtonPresses = 10
+	}
+
+	if strings.Contains("!volumedown", message) {
+		totalButtonPresses = 10
+	}
+
+	log.Println("COMMAND:", splitMessage[0], " //  KEY NR:", keyboardCommandsToActions[splitMessage[0]], " // CTL NR:", controlValue, " // TIMES:", totalButtonPresses)
+	for buttonPress := 0; buttonPress < totalButtonPresses; buttonPress++ {
+		KEYBONDING.SetKeys(keyboardCommandsToActions[splitMessage[0]])
+		PressKey(controlValue * oneMeter)
+	}
+
 }
-func SendCustomSystemMessage(channel string, msg string, client *twitch.Client) {
-	client.Say(channel, msg)
+
+func TriggerDiscordSocials(kb keybd_event.KeyBonding, message string) {
+	splitMessage := strings.Split(message, " ")
+	text := socialCommandsToText[splitMessage[0]]
+	if text == "" {
+		return
+	}
+	_, err := DISCORDclient.CreateMessage(context.Background(), disgord.Snowflake(710530877142335651), &disgord.CreateMessageParams{
+		Content: text,
+	}, disgord.Flag(1<<4))
+	if err != nil {
+		log.Println(err, string(debug.Stack()))
+	}
+
+}
+func TriggerTwitchSocials(message twitch.PrivateMessage) {
+	splitMessage := strings.Split(message.Message, " ")
+	text := socialCommandsToText[splitMessage[0]]
+	if text == "" {
+		return
+	}
+	SendCustomSystemMessage("ZENDROIDlive", text)
+	SendCustomWhisper(message.User.Name, text)
+}
+func twitchMessageHandler(message twitch.PrivateMessage) {
+	// fmt.Println(message)
+	log.Println("MESSAGE:", message.Message)
+	for _, v := range WSMAP {
+		websocket.Message.Send(v, message.User.DisplayName+":xx:"+message.Message)
+	}
+	TriggerControls(message.Message)
+	TriggerTwitchSocials(message)
+}
+
+// MSG FORMAT: zkynet#5018{670416323792207872}: test message to bot
+func discordMessageHandler(session disgord.Session, evt *disgord.MessageCreate) {
+	for _, v := range WSMAP {
+		websocket.Message.Send(v, evt.Message.Author.Username+":xx:"+evt.Message.Content)
+	}
+	TriggerControls(evt.Message.Content)
+	TriggerDiscordSocials(KEYBONDING, evt.Message.Content)
+}
+
+func SendCustomWhisper(user string, msg string) {
+	TWITCHclient.Whisper(user, msg)
+}
+func SendCustomSystemMessage(channel string, msg string) {
+	TWITCHclient.Say(channel, msg)
 	for _, v := range WSMAP {
 		websocket.Message.Send(v, "system::"+msg)
 	}
@@ -185,12 +185,6 @@ func hello(c echo.Context) error {
 		defer ws.Close()
 		log.Println("new client", ws.Request().RemoteAddr)
 		WSMAP[ws.Request().RemoteAddr] = ws
-		// Write
-		// err := websocket.Message.Send(ws, "system::Welcome to zkynets chat bot system")
-		// if err != nil {
-		// 	c.Logger().Error(err)
-		// }
-
 		for {
 
 			// Read
