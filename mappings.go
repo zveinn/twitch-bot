@@ -10,11 +10,15 @@ import (
 var keyboardCommandsToActions = make(map[string]int)
 var socialCommandsToText = make(map[string]string)
 var WSMAP = make(map[string]*websocket.Conn)
-var oneMeter = 200
+var oneMeter = 180
 var TWITCHclient *twitch.Client
 var DISCORDclient *disgord.Client
 var KEYBONDING keybd_event.KeyBonding
 
+// 500 ...
+// 45 daagrees in the turn
+// 2 meters foward
+// 1 meter backwards
 func LoadMaps() {
 	// Media controls
 	keyboardCommandsToActions["!prev"] = keybd_event.VK_MEDIA_PREV_TRACK

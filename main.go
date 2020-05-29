@@ -27,7 +27,6 @@ func main() {
 	}
 
 	LoadMaps()
-
 	KEYBONDING, err = keybd_event.NewKeyBonding()
 	if err != nil {
 		panic(err)
@@ -39,16 +38,28 @@ func main() {
 	}
 
 	// Start twitch client
-	go func() {
-		TWITCHclient = twitch.NewClient("zendroidlive", os.Getenv("TWITCH_KEY"))
-		TWITCHclient.Join("zendroidlive")
-		TWITCHclient.OnPrivateMessage(twitchMessageHandler)
 
-		err = TWITCHclient.Connect()
-		if err != nil {
-			panic(err)
-		}
-	}()
+	ScrapeTwitch()
+
+	for {
+		time.Sleep(10 * time.Second)
+	}
+
+	// go func() {
+	// TWITCHclient = twitch.NewClient("ZENDROIDlive", os.Getenv("TWITCH_KEY"))
+	TWITCHclient = twitch.NewClient("zkynettest", "oauth:f9156tpjvlutut3pgjrpne0fptmnv9")
+	TWITCHclient.Join("ZENDROIDlive")
+	TWITCHclient.OnPrivateMessage(twitchMessageHandler)
+	TWITCHclient.OnUserJoinMessage(twitchJoinHandler)
+	// TWITCHclient.Say("ZENDROIDlive", "ZENDROID is now LIVE, follow me on twitter: https://www.twitter.com/zkynetio")
+
+	err = TWITCHclient.Connect()
+	if err != nil {
+		panic(err)
+	}
+	// temp
+
+	// }()
 
 	// Start discord client
 	go func() {
@@ -65,6 +76,12 @@ func main() {
 		log.Println("starting discord listener.")
 		DISCORDclient.On(disgord.EvtMessageCreate, discordMessageHandler)
 		// TODO: implement a watcher
+		// _, err := DISCORDclient.CreateMessage(context.Background(), disgord.Snowflake(710530877142335651), &disgord.CreateMessageParams{
+		// 	Content: "ZENDROID is now LIVE on twitch: https://www.twitch.tv/zendroidlive",
+		// }, disgord.Flag(1<<4))
+		// if err != nil {
+		// 	log.Println(err, string(debug.Stack()))
+		// }
 		for {
 			time.Sleep(time.Minute * 1)
 		}
@@ -90,10 +107,6 @@ func PressKey(controlValue int) {
 	}
 }
 
-// 500 ...
-// 45 daagrees in the turn
-// 2 meters foward
-// 1 meter backwards
 func TriggerControls(message string) {
 	var controlValue = 0
 	var err error
@@ -107,20 +120,26 @@ func TriggerControls(message string) {
 		}
 	}
 
+	log.Println("COMMAND:", splitMessage[0], " //  KEY NR:", keyboardCommandsToActions[splitMessage[0]], " // CTL NR:", controlValue, " // TIMES:", totalButtonPresses)
+
 	// if we don't find any controls, go back
 	if keyboardCommandsToActions[splitMessage[0]] == 0 {
 		return
 	}
 
-	if strings.Contains("!volumeup", message) {
+	if strings.Contains(message, "!volumeup") {
 		totalButtonPresses = 10
 	}
 
-	if strings.Contains("!volumedown", message) {
+	if strings.Contains(message, "!volumedown") {
 		totalButtonPresses = 10
 	}
+	if strings.Contains(message, "!d") || strings.Contains(message, "!a") {
+		KEYBONDING.SetKeys(keyboardCommandsToActions[splitMessage[0]])
+		PressKey(controlValue * 8)
+		return
+	}
 
-	log.Println("COMMAND:", splitMessage[0], " //  KEY NR:", keyboardCommandsToActions[splitMessage[0]], " // CTL NR:", controlValue, " // TIMES:", totalButtonPresses)
 	for buttonPress := 0; buttonPress < totalButtonPresses; buttonPress++ {
 		KEYBONDING.SetKeys(keyboardCommandsToActions[splitMessage[0]])
 		PressKey(controlValue * oneMeter)
@@ -159,6 +178,13 @@ func twitchMessageHandler(message twitch.PrivateMessage) {
 	}
 	TriggerControls(message.Message)
 	TriggerTwitchSocials(message)
+}
+func twitchJoinHandler(message twitch.UserJoinMessage) {
+	// fmt.Println(message)
+	log.Println("JOIN:", message)
+	// for _, v := range WSMAP {
+	// 	websocket.Message.Send(v, message.User.DisplayName+":xx:"+message.Message)
+	// }
 }
 
 // MSG FORMAT: zkynet#5018{670416323792207872}: test message to bot
