@@ -1,6 +1,6 @@
 var clientId = 'vo9cg45mztcdqp9b9ql5u09czeoddo';
 var redirectURI = 'http://localhost';
-var scope = "bits:read"
+var scope = "bits:read+whispers:edit+user:read:email"
 // sessionStorage.twitchOAuthToken = "8md2q7qzm6nxhht61zb6ycijc1z9rj"
 // sessionStorage.twitchOAuthState = "QWuf4U8e75c11A8"
 // var scope = 'channel-subscribe-events-v1.525520445';

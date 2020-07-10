@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -80,15 +81,38 @@ func ScrapeTwitch() {
 		T = token.AccessToken
 	}
 
-	log.Println("Using token", T)
 	// getUserInfo(T)
-	Streams := getStreams(T)
-	for _, v := range Streams {
-		log.Println(v.ViewerCount, "   ", v.Title, "     ", v.UserName)
+	// os.Exit(1)
+	// f, err := os.Create("users")
+	// if err != nil {
+	// 	log.Println(err, string(debug.Stack()))
+	// 	panic(1)
+	// }
+
+	log.Println("Using token", T)
+	streamLength := 100
+	cursor := ""
+	for {
+		if streamLength > 1 {
+			log.Println("getting channels ..", streamLength)
+			time.Sleep(100 * time.Millisecond)
+			Streams := getStreams(T, cursor)
+
+			cursor = Streams.Pagination.Cursor
+			streamLength = len(Streams.Data)
+			for _, v := range Streams.Data {
+				if v.ViewerCount > 50 && v.ViewerCount < 300 {
+				Usermap[strings.ToLower(v.UserName)] = []string{}
+				UsermapTotal[strings.ToLower(v.UserName)] = v.ViewerCount
+				}
+				// _, _ = f.WriteString(strconv.Itoa(v.ViewerCount) + " " + v.UserName + "\n")
+			}
+			// log.Println(streamLength, Streams.Pagination.Cursor)
+		} else {
+			log.Println("done getting channels..")
+			return
+		}
 	}
-	// getSubs(T)
-	// go serverFS()
-	// go launchWS()
 
 }
 
@@ -99,10 +123,9 @@ type STREAMResponse struct {
 	}
 }
 
-func getStreams(token string) []WOWStream {
+func getStreams(token string, cursor string) *STREAMResponse {
 	client := &http.Client{}
-
-	req, err := http.NewRequest("GET", "https://api.twitch.tv/helix/streams?game_id=18122&first=100", nil)
+	req, err := http.NewRequest("GET", "https://api.twitch.tv/helix/streams?game_id=18122&first=100&after="+cursor, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -121,15 +144,14 @@ func getStreams(token string) []WOWStream {
 		log.Println(err, string(debug.Stack()))
 		return nil
 	}
-	log.Println(SR.Pagination.Cursor)
 
 	defer resp.Body.Close()
-	return SR.Data
+	return &SR
 }
 func getUserInfo(token string) {
 	client := &http.Client{}
 
-	req, err := http.NewRequest("GET", "https://api.twitch.tv/helix/users?login=zendroidlive", nil)
+	req, err := http.NewRequest("GET", "https://api.twitch.tv/helix/users?login=oyd123", nil)
 	if err != nil {
 		panic(err)
 	}

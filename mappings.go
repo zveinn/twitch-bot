@@ -14,6 +14,8 @@ var oneMeter = 180
 var TWITCHclient *twitch.Client
 var DISCORDclient *disgord.Client
 var KEYBONDING keybd_event.KeyBonding
+var DISCORDCHANNEL uint64 = 723658491721547837
+var TWITCHCHANNEL = "zhuffles"
 
 // 500 ...
 // 45 daagrees in the turn

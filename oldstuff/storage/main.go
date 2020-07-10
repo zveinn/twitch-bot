@@ -55,7 +55,7 @@ func main() {
 			ClientID:     clientID,
 			ClientSecret: clientSecret,
 			TokenURL:     twitch.Endpoint.TokenURL,
-			Scopes:       []string{"bits:read"},
+			Scopes:       []string{"bits:read,whispers:edit"},
 		}
 
 		token, err := oauth2Config.Token(context.Background())
@@ -71,8 +71,8 @@ func main() {
 	// getUserInfo(T)
 	// getFollows(T)
 	// getSubs(T)
-	// go serverFS()
-	go launchWS()
+	go serverFS()
+	// go launchWS()
 
 	signal_chan := make(chan os.Signal, 1)
 	signal.Notify(signal_chan,
