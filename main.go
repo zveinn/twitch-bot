@@ -193,7 +193,7 @@ func TriggerControls(message string) {
 	}
 
 }
-func TriggerSocials(message,username,platform string){
+func TriggerSocials(message, username, platform string) {
 	splitMessage := strings.Split(message, " ")
 	text := socialCommandsToText[splitMessage[0]]
 	if text == "" {
@@ -202,47 +202,74 @@ func TriggerSocials(message,username,platform string){
 
 	log.Println("SOCIAL", username, platform, text)
 	if platform == "twitch" {
-	STREAMSendSystemMessage(TWITCHCHANNEL, text)
-	TWITCHWhisperUser(username, text)
-	TWITCHSendMsgToChannel(TWITCHCHANNEL, text)
+		STREAMSendSystemMessage(TWITCHCHANNEL, text)
+		TWITCHWhisperUser(username, text)
+		TWITCHSendMsgToChannel(TWITCHCHANNEL, text)
 	} else if platform == "discord" {
 		DISCORDSendMsgToChannel(DISCORDCHANNEL, text)
 	}
-} 
+}
 
 func twitchMessageHandler(message twitch.PrivateMessage) {
 	// fmt.Println(message)
-	log.Println("MESSAGE:",message.Channel, message.Message)
-	for _, v := range WSMAP {
-		websocket.Message.Send(v, message.User.DisplayName+":xx:"+message.Message)
+	log.Println("MESSAGE:", message.Channel, message.Message, message.Tags["emotes"])
+	newMessage := message.Message
+	toReplace := make(map[string]string)
+	emoteList := strings.Split(message.Tags["emotes"], "/")
+	log.Println(len(emoteList), emoteList)
+
+	if emoteList[0] != "" {
+		for _, v := range emoteList {
+			emoteNumber := strings.Split(v, ":")
+			oc := strings.Split(emoteNumber[1], ",")
+			for _, vv := range oc {
+				log.Println(emoteNumber[0], vv)
+				startToEnd := strings.Split(vv, "-")
+				log.Println("Split by - ", vv, "post:", startToEnd)
+				start, _ := strconv.Atoi(startToEnd[0])
+				end, _ := strconv.Atoi(startToEnd[1])
+				toReplace[message.Message[start:end+1]] = emoteNumber[0]
+			}
+		}
+
+		for i, v := range toReplace {
+			newMessage = strings.Replace(newMessage, i, " <img src='https://static-cdn.jtvnw.net/emoticons/v1/"+v+"/1.0' /> ", -1)
+		}
+
+		log.Println("NEW MSG:", newMessage)
 	}
+
+	for _, v := range WSMAP {
+		websocket.Message.Send(v, message.User.DisplayName+":xx:"+newMessage)
+	}
+
 	RaiderIOCheck(message.Message, "twitch")
 	TriggerControls(message.Message)
-	TriggerSocials(message.Message,  message.User.Name, "twitch")
+	TriggerSocials(message.Message, message.User.Name, "twitch")
 }
+
 func RaiderIOCheck(message string, platform string) {
 
-
 	if !strings.Contains(message, "!player") {
-      return
+		return
 	}
 	info := strings.Split(message, " ")
 	Player := RaiderIOCharacter(info[1], info[2], info[3], []string{"gear"})
 	log.Println(Player.Base.Gear.Items.Neck)
- 
+
 	x := []string{}
 	x = append(x, "https://raider.io/characters/"+info[1]+"/"+info[2]+"/"+info[3]+"")
 	if info[4] == "ilvl" {
 		x = append(x, "ILVL: "+strconv.Itoa(Player.Base.Gear.ItemLevelEquipped))
 		x = append(x, "Total ILVL: "+strconv.Itoa(Player.Base.Gear.ItemLevelTotal))
 	} else if info[4] == "corruption" {
-		x = append(x,"Equiped Corruption: "+strconv.Itoa(Player.Base.Gear.Corruption.Added))
-		x = append(x,"Resisted Corruption: "+strconv.Itoa(Player.Base.Gear.Corruption.Resisted))
-		x = append(x,"Total Corruption: "+strconv.Itoa(Player.Base.Gear.Corruption.Total))
+		x = append(x, "Equiped Corruption: "+strconv.Itoa(Player.Base.Gear.Corruption.Added))
+		x = append(x, "Resisted Corruption: "+strconv.Itoa(Player.Base.Gear.Corruption.Resisted))
+		x = append(x, "Total Corruption: "+strconv.Itoa(Player.Base.Gear.Corruption.Total))
 	} else if info[4] == "essence" {
-		for _,v := range Player.Base.Gear.Items.Neck.HeartOfAzeroth.Essences {
+		for _, v := range Player.Base.Gear.Items.Neck.HeartOfAzeroth.Essences {
 			log.Println("adding one essence ...")
-			x = append(x,"Essence: "+v.Power.Essence.Name +" Rank("+strconv.Itoa(v.Rank)+")")
+			x = append(x, "Essence: "+v.Power.Essence.Name+" Rank("+strconv.Itoa(v.Rank)+")")
 		}
 	} else if info[4] == "items" {
 		staticlink := ""
@@ -251,13 +278,13 @@ func RaiderIOCheck(message string, platform string) {
 		} else {
 			staticlink = "https://wowhead.com/item="
 		}
-		x = append(x, "Head "+staticlink+ strconv.Itoa(Player.Base.Gear.Items.Head.ItemID))
+		x = append(x, "Head "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Head.ItemID))
 		x = append(x, "Neck "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Neck.ItemID))
 		x = append(x, "Shoulder "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Shoulder.ItemID))
 		x = append(x, "Chest "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Chest.ItemID))
 		x = append(x, "Wrist "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Wrist.ItemID))
 		x = append(x, "Hands "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Hands.ItemID))
-		x = append(x, "Waist "+strconv.Itoa(Player.Base.Gear.Items.Waist.ItemID))
+		x = append(x, "Waist "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Waist.ItemID))
 		x = append(x, "Legs "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Legs.ItemID))
 		x = append(x, "Feet "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Feet.ItemID))
 		x = append(x, "Trinket "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Trinket1.ItemID))
@@ -265,20 +292,19 @@ func RaiderIOCheck(message string, platform string) {
 		x = append(x, "Main Hand "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Mainhand.ItemID))
 		x = append(x, "Off Hand "+staticlink+strconv.Itoa(Player.Base.Gear.Items.Offhand.ItemID))
 	} else if info[4] == "raiderio" {
-		for _,v := range Player.Base.Score {
-		x = append(x, "RaiderIO dps: "+fmt.Sprintf("%.1f",v.Scores.Dps ) )	
-		x = append(x, "RaiderIO healer: "+fmt.Sprintf("%.1f",v.Scores.Healer ) )	
+		for _, v := range Player.Base.Score {
+			x = append(x, "RaiderIO dps: "+fmt.Sprintf("%.1f", v.Scores.Dps))
+			x = append(x, "RaiderIO healer: "+fmt.Sprintf("%.1f", v.Scores.Healer))
 		}
 	}
- 
-	 time.Sleep(200*time.Millisecond)
+
+	time.Sleep(200 * time.Millisecond)
 	if platform == "twitch" {
-		log.Println("Sending to twitch:",strings.Join(x, " / "))
+		log.Println("Sending to twitch:", strings.Join(x, " / "))
 		TWITCHSendMsgToChannel(TWITCHCHANNEL, strings.Join(x, " / "))
 	} else if platform == "discord" {
 		DISCORDSendMsgToChannel(DISCORDCHANNEL, strings.Join(x, " / "))
 	}
-
 
 }
 func twitchJoinHandler(message twitch.UserJoinMessage) {
@@ -292,17 +318,16 @@ func twitchJoinHandler(message twitch.UserJoinMessage) {
 func discordMessageHandler(session disgord.Session, evt *disgord.MessageCreate) {
 	if disgord.Snowflake(DISCORDCHANNEL) != evt.Message.ChannelID {
 		log.Println("NMO MATCH:", DISCORDCHANNEL, evt.Message.ChannelID)
-		return	
+		return
 	}
 	for _, v := range WSMAP {
 		websocket.Message.Send(v, evt.Message.Author.Username+":xx:"+evt.Message.Content)
 	}
 	log.Println("DISCORD MESSAGE", evt.Message.ChannelID, evt.Message.Content)
-		RaiderIOCheck(evt.Message.Content, "discord")
+	RaiderIOCheck(evt.Message.Content, "discord")
 	TriggerControls(evt.Message.Content)
-	TriggerSocials( evt.Message.Content,  evt.Message.Author.Username, "discord")
+	TriggerSocials(evt.Message.Content, evt.Message.Author.Username, "discord")
 }
-
 
 func STREAMSendSystemMessage(channel string, msg string) {
 	for _, v := range WSMAP {
@@ -330,8 +355,6 @@ func hello(c echo.Context) error {
 	return nil
 }
 
-
-
 func DISCORDSendMsgToChannel(channel uint64, msg string) {
 	_, err := DISCORDclient.CreateMessage(context.Background(), disgord.Snowflake(channel), &disgord.CreateMessageParams{
 		Content: msg,
@@ -347,14 +370,13 @@ func TWITCHWhisperUser(user, msg string) {
 	TWITCHclient.Whisper(user, msg)
 }
 
-func SendHello(){
+func SendHello() {
 	_, err := DISCORDclient.CreateMessage(context.Background(), disgord.Snowflake(DISCORDCHANNEL), &disgord.CreateMessageParams{
-			Content: "ZENDROID is now LIVE on twitch: https://www.twitch.tv/zendroidlive",
-		}, disgord.Flag(1<<4))
-		if err != nil {
-			log.Println(err, string(debug.Stack()))
-		}
+		Content: "ZENDROID is now LIVE on twitch: https://www.twitch.tv/zendroidlive",
+	}, disgord.Flag(1<<4))
+	if err != nil {
+		log.Println(err, string(debug.Stack()))
+	}
 
-		
-		TWITCHclient.Say("zhuffles", "ZENDROID is now LIVE, follow me on twitter: https://www.twitter.com/zkynetio")
+	TWITCHclient.Say("zhuffles", "ZENDROID is now LIVE, follow me on twitter: https://www.twitter.com/zkynetio")
 }

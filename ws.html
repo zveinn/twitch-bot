@@ -24,48 +24,52 @@
 
         .output {
             padding-left: 5px;
-            padding-right:5px;
+            padding-right: 5px;
             display: table;
-            width:650;
+            width: 400px !important;
+            height: 100% !important;
             position: absolute;
-            top:2px;
-            left:0px;
+            top: 5px;
+            left: 0px;
         }
 
         .msg {
             background-color: rgba(0, 0, 0, 0.226);
+            /* position: relative; */
+            /* bottom: 0; */
             width: fit-content;
-            max-width: 600px !important;
+            max-width: 400px !important;
+            width: 100% !important;
             color: rgb(255, 255, 255);
-            float: left;
-            margin-right: 30%;
-             font-weight: bold !important;
-             padding-right:5px;
-             padding-left:5px;
+            float: right;
+            /* margin-right: 30%; */
+            font-weight: bold !important;
+            padding-right: 5px;
+            padding-left: 5px;
         }
 
         .user {
             /* background-color: rgb(0, 0, 0); */
-            color: rgb(0, 255, 55);
-            float: left;
+            color: rgb(225, 0, 255);
+            float: right;
             font-weight: 1200 !important;
+            padding-left: 5px;
         }
 
         .data {
             /* background-color: rgba(27, 27, 27, 0.52); */
-            float: left;
+            float: right;
 
         }
 
         .font {
             font-family: monospace !important;
             text-rendering: optimizeLegibility;
-            float: left;
             letter-spacing: -1px;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             font-smooth: always;
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.7);
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
             font-size: 18px;
         }
     </style>
@@ -89,11 +93,12 @@
             var out = document.getElementById('output');
             if (evt.data.includes("system::")) {
                 var final = evt.data.split("::")
-                out.innerHTML = "<div class='systemMSG font'> " + final[1] + ' </div>'+out.innerHTML;
+                out.innerHTML = "<div class='systemMSG font'> " + final[1] + ' </div>' + out.innerHTML;
             } else {
                 var final = evt.data.split(":xx:")
                 console.log(final)
-                out.innerHTML = "<div class='msg'> <div class='user font'>" + final[0] + ":</div> <div class='data font'>" + " " + final[1] + '</div>  </div>'+out.innerHTML;
+
+                out.innerHTML = "<div class='msg'>" + "<div class='user font'> " + ":" + final[0] + "</div>  <div class='data font'>" + final[1] + ' </div></div>' + out.innerHTML;
             }
         }
     </script>

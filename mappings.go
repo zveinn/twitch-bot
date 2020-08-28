@@ -42,9 +42,9 @@ func LoadMaps() {
 	keyboardCommandsToActions["!dance"] = keybd_event.VK_K
 
 	// Social stuff
-	socialCommandsToText["!twitter"] = "https://www.twitter.com/zkynetio"
+	socialCommandsToText["!twitter"] = "https://www.twitter.com/zhuffles"
 	socialCommandsToText["!youtube"] = "https://www.youtube.com/channel/UCW6eiMiVqYroPX1qiosAbnQ"
-	socialCommandsToText["!discord"] = "https://discord.gg/r4wxkXd"
-	socialCommandsToText["!hi"] = "Welcome to ZENDROID, whats up!"
+	socialCommandsToText["!discord"] = "https://discord.gg/gYUgFCA"
+	socialCommandsToText["!hi"] = "Welcome to the stream, whats up!"
 
 }
