@@ -34,7 +34,7 @@
         }
 
         .msg {
-            background-color: rgba(0, 0, 0, 0.226);
+            background-color: rgba(0, 0, 0, 0.548);
             /* position: relative; */
             /* bottom: 0; */
             width: fit-content;
@@ -49,8 +49,8 @@
         }
 
         .user {
-            /* background-color: rgb(0, 0, 0); */
-            color: rgb(225, 0, 255);
+            /* color: rgb(225, 0, 255); */
+            color: rgb(164, 0, 185);
             float: right;
             font-weight: 1200 !important;
             padding-left: 5px;
@@ -83,7 +83,7 @@
     <script>
 
 
-        ws = new WebSocket("ws://localhost:1234/ws")
+        ws = new WebSocket("ws://localhost:1235/ws")
 
         ws.onopen = function () {
             console.log('Connected')

@@ -14,8 +14,8 @@ var oneMeter = 180
 var TWITCHclient *twitch.Client
 var DISCORDclient *disgord.Client
 var KEYBONDING keybd_event.KeyBonding
-var DISCORDCHANNEL uint64 = 723658491721547837
-var TWITCHCHANNEL = "zhuffles"
+var DISCORDCHANNEL uint64 = 713485972821639289
+var TWITCHCHANNEL = "zzveinn"
 
 // 500 ...
 // 45 daagrees in the turn
@@ -36,15 +36,15 @@ func LoadMaps() {
 	keyboardCommandsToActions["!d"] = keybd_event.VK_D
 
 	// world of warcraft specific
-	keyboardCommandsToActions["!inventory"] = keybd_event.VK_B
-	keyboardCommandsToActions["!mount"] = keybd_event.VK_V
-	keyboardCommandsToActions["!jump"] = keybd_event.VK_SPACE
-	keyboardCommandsToActions["!dance"] = keybd_event.VK_K
+	// keyboardCommandsToActions["!inventory"] = keybd_event.VK_B
+	// keyboardCommandsToActions["!mount"] = keybd_event.VK_V
+	// keyboardCommandsToActions["!jump"] = keybd_event.VK_SPACE
+	// keyboardCommandsToActions["!dance"] = keybd_event.VK_K
 
 	// Social stuff
-	socialCommandsToText["!twitter"] = "https://www.twitter.com/zhuffles"
+	socialCommandsToText["!twitter"] = "https://www.twitter.com/zzveinn"
 	socialCommandsToText["!youtube"] = "https://www.youtube.com/channel/UCW6eiMiVqYroPX1qiosAbnQ"
-	socialCommandsToText["!discord"] = "https://discord.gg/gYUgFCA"
+	socialCommandsToText["!discord"] = "https://discord.gg/r4wxkXd"
 	socialCommandsToText["!hi"] = "Welcome to the stream, whats up!"
 
 }

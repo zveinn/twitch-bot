@@ -102,8 +102,8 @@ func ScrapeTwitch() {
 			streamLength = len(Streams.Data)
 			for _, v := range Streams.Data {
 				if v.ViewerCount > 50 && v.ViewerCount < 300 {
-				Usermap[strings.ToLower(v.UserName)] = []string{}
-				UsermapTotal[strings.ToLower(v.UserName)] = v.ViewerCount
+					Usermap[strings.ToLower(v.UserName)] = []string{}
+					UsermapTotal[strings.ToLower(v.UserName)] = v.ViewerCount
 				}
 				// _, _ = f.WriteString(strconv.Itoa(v.ViewerCount) + " " + v.UserName + "\n")
 			}

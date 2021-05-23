@@ -25,7 +25,7 @@ var UsermapTotal = make(map[string]int)
 var UserChannelCount = make(map[string]int)
 
 func InitUserMap() {
-	Usermap["zhuffles"] = []string{}
+	Usermap["zzveinn"] = []string{}
 	// Usermap["hofkari"] = []string{}
 	// Usermap["kevinramm"] = []string{}
 	// Usermap["justruss"] = []string{}
@@ -75,7 +75,7 @@ func main() {
 
 	go func() {
 		// TWITCHclient = twitch.NewClient("ZENDROIDlive", os.Getenv("TWITCH_KEY"))
-		TWITCHclient = twitch.NewClient("zkynettest", os.Getenv("TWITCH_KEY"))
+		TWITCHclient = twitch.NewClient("zzveinn", os.Getenv("TWITCH_KEY"))
 		TWITCHclient.OnPrivateMessage(twitchMessageHandler)
 		TWITCHclient.OnUserJoinMessage(twitchJoinHandler)
 
@@ -136,7 +136,7 @@ func main() {
 	e := echo.New()
 	e.Static("/", "./ws.html")
 	e.GET("/ws", hello)
-	e.Start(":1234")
+	log.Fatal(e.Start(":1235"))
 }
 
 func PressKey(controlValue int) {
@@ -166,12 +166,13 @@ func TriggerControls(message string) {
 		}
 	}
 
-	log.Println("COMMAND:", splitMessage[0], " //  KEY NR:", keyboardCommandsToActions[splitMessage[0]], " // CTL NR:", controlValue, " // TIMES:", totalButtonPresses)
-
 	// if we don't find any controls, go back
 	if keyboardCommandsToActions[splitMessage[0]] == 0 {
+		log.Println("NO COMMAND FOUND:", splitMessage[0])
 		return
 	}
+
+	log.Println("COMMAND:", splitMessage[0], " //  KEY NR:", keyboardCommandsToActions[splitMessage[0]], " // CTL NR:", controlValue, " // TIMES:", totalButtonPresses)
 
 	if strings.Contains(message, "!volumeup") {
 		totalButtonPresses = 10
