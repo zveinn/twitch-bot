@@ -1,4 +1,4 @@
-# Please for and contribute
+# Please fork and contribute
 
 # TODO
 1. add variables.go to a config file
