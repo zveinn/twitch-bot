@@ -63,6 +63,34 @@ func USER_TEST(user tirc.UserStateMessage) {
 	log.Println("State:", user)
 }
 
+func (C *IRC_CLIENT) POST_INFO() {
+	defer func() {
+		r := recover()
+		if r != nil {
+			log.Println(r, string(debug.Stack()))
+		}
+		monitor <- 1337
+	}()
+
+	if C.Client != nil {
+
+		returnText, ok := TextCommands["!twitter"]
+		if ok {
+			TWITCH_CLIENT.Reply(returnText, "")
+		}
+		returnText, ok = TextCommands["!discord"]
+		if ok {
+			TWITCH_CLIENT.Reply(returnText, "")
+		}
+		returnText, ok = TextCommands["!vpn"]
+		if ok {
+			TWITCH_CLIENT.Reply(returnText, "")
+		}
+	}
+
+	time.Sleep(1 * time.Hour)
+}
+
 func (C *IRC_CLIENT) Connect() {
 	defer func() {
 		r := recover()
@@ -84,6 +112,8 @@ func (C *IRC_CLIENT) Connect() {
 	go func() {
 		time.Sleep(3 * time.Second)
 		C.JoinChannels()
+		time.Sleep(3 * time.Second)
+		go TWITCH_CLIENT.POST_INFO()
 	}()
 
 	err := C.Client.Connect()

@@ -57,6 +57,7 @@ func InitCommands() {
 	TextCommands["!editor"] = "nvim"
 	TextCommands["!spec"] = "CPU( AMD Ryzen 9 3950X 16-Core Processor  ) RAM( 32GB) GPU( GeForce RTX 2080 Ti )"
 	TextCommands["!youtube"] = "https://www.youtube.com/@keyb1nd"
+	TextCommands["!lurk"] = "ABSOLUTELY NOT ... LURKING IS NOT ALLOWED IN HERE"
 
 	// VPN RELATED
 	TextCommands["!freetrial"] = "All new accounts get 24 hours free trial > https://www.nicelandvpn.is/#/register"

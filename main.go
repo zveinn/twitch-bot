@@ -61,6 +61,8 @@ func main() {
 				TWITCH_CLIENT.Connect()
 			} else if ID == 7 {
 				go RenewTokensLoop()
+			} else if ID == 1337 {
+				go TWITCH_CLIENT.POST_INFO()
 			}
 
 		default:
