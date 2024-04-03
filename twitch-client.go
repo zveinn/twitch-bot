@@ -15,6 +15,9 @@ import (
 	"time"
 
 	tirc "github.com/gempir/go-twitch-irc/v4"
+	"github.com/gopxl/beep"
+	"github.com/gopxl/beep/mp3"
+	"github.com/gopxl/beep/speaker"
 	"github.com/nicklaw5/helix"
 )
 
@@ -269,11 +272,29 @@ func RandQuote(msg *tirc.PrivateMessage) {
 }
 
 func PlaySound(tag string) {
-	cmd := exec.Command("ffplay", "-v", "0", "-nodisp", "-autoexit", "./mp3/"+tag+".mp3")
-	out, err := cmd.CombinedOutput()
+	// cmd := exec.Command("ffplay", "-v", "0", "-nodisp", "-autoexit", "./mp3/"+tag+".mp3")
+	// out, err := cmd.CombinedOutput()
+	// if err != nil {
+	// 	log.Println(err, string(out))
+	// }
+	f, err := os.Open("./mp3/" + tag + ".mp3")
 	if err != nil {
-		log.Println(err, string(out))
+		log.Fatal(err)
 	}
+
+	streamer, format, err := mp3.Decode(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer streamer.Close()
+
+	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+	done := make(chan bool)
+	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
+		done <- true
+	})))
+
+	<-done
 }
 
 func Top10Command() {

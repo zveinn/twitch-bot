@@ -27,7 +27,7 @@ func InitCollections() {
 func Connect(uri string) (err error) {
 	var maxSize uint64 = 200
 	var minSize uint64 = 20
-	var minHeartbeat = time.Duration(1 * time.Second)
+	minHeartbeat := time.Duration(1 * time.Second)
 	opt := options.Client()
 	opt.MaxPoolSize = &maxSize
 	opt.MinPoolSize = &minSize

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -28,7 +29,10 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+	// MakeNewToken()
+	// os.Exit(1)
 
+	fmt.Println("MONGO CONNECTING:", os.Getenv("DB"))
 	err = mongowrapper.Connect(os.Getenv("DB"))
 	if err != nil {
 		log.Fatal(err)
@@ -41,13 +45,17 @@ func main() {
 	InitCommands()
 	InitMP3Map()
 
-	RenewTokens()
+	err = RenewTokens()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	CreateAPIClient()
 
 	GetGlobalEmotes()
 	TWITCH_CLIENT.GetAllChannelEmotes()
 
-	go RenewTokensLoop()
+	// go RenewTokensLoop()
 
 	go TWITCH_CLIENT.Connect()
 

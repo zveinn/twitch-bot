@@ -45,7 +45,7 @@ func InitTwitchClient() {
 }
 
 func InitCommands() {
-	TextCommands["!monero"] = "43V6N2BpjvMYUthyqLioafZ2MQQviWEhvVTpp3hHc6LB48WYE8SsjrJKyyYzR3AYu2HkSXu8xsJhr7wdLsgSc8mGDDTkCrn"
+	// TextCommands["!monero"] = "43V6N2BpjvMYUthyqLioafZ2MQQviWEhvVTpp3hHc6LB48WYE8SsjrJKyyYzR3AYu2HkSXu8xsJhr7wdLsgSc8mGDDTkCrn"
 	TextCommands["!nvim"] = "https://github.com/zveinn/nvim-config"
 	TextCommands["!twitter"] = "https://twitter.com/keyb1nd"
 	TextCommands["!github"] = "https://github.com/zveinn"
