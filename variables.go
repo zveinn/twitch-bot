@@ -46,24 +46,24 @@ func InitTwitchClient() {
 
 func InitCommands() {
 	// TextCommands["!monero"] = "43V6N2BpjvMYUthyqLioafZ2MQQviWEhvVTpp3hHc6LB48WYE8SsjrJKyyYzR3AYu2HkSXu8xsJhr7wdLsgSc8mGDDTkCrn"
-	TextCommands["!nvim"] = "https://github.com/zveinn/nvim-config"
-	TextCommands["!twitter"] = "https://twitter.com/keyb1nd"
+	TextCommands["!nvim"] = "https://github.com/zveinn/dotfiles"
+	TextCommands["!x"] = "https://x.com/keyb1nd"
 	TextCommands["!github"] = "https://github.com/zveinn"
 	TextCommands["!linkedin"] = "https://www.linkedin.com/in/keyb1nd/"
 	TextCommands["!discord"] = "https://discord.com/invite/wJ5m3Y6ezq"
-	TextCommands["!keyboard"] = "https://twitter.com/keyb1nd/status/1589688621619351552"
-	TextCommands["!os"] = "Debian 12 xfce"
-	TextCommands["!terminal"] = "qterminal + tmux"
+	TextCommands["!keyboard"] = "https://x.com/keyb1nd/status/1589688621619351552"
+	TextCommands["!os"] = "Debian 12 kde"
+	TextCommands["!terminal"] = "wezterm + tmux"
 	TextCommands["!editor"] = "nvim"
-	TextCommands["!spec"] = "CPU( AMD Ryzen 9 3950X 16-Core Processor  ) RAM( 32GB) GPU( GeForce RTX 2080 Ti )"
+	TextCommands["!spec"] = "... the best cpu. literally a super computer from space."
 	TextCommands["!youtube"] = "https://www.youtube.com/@keyb1nd"
 	TextCommands["!lurk"] = "ABSOLUTELY NOT ... LURKING IS NOT ALLOWED IN HERE"
 
 	// VPN RELATED
 	TextCommands["!freetrial"] = "All new accounts get 24 hours free trial > https://www.nicelandvpn.is/#/register"
-	TextCommands["!vpn"] = "NicelandVPN has a 24 hour free trial + anonymous accounts (no credit card info needed) >>> https://nicelandvpn.is >>> https://twitter.com/nicelandvpn >>> https://discord.gg/7Ts3PCnCd9"
+	TextCommands["!vpn"] = "NicelandVPN >> 24/h Free Trial >> Anonymous Accounts >> NO CARD INFO NEEDED! >>> https://nicelandvpn.is"
 
-	TextCommands["!commands"] = "!top10 !roll !quote !vpn !freetrial !youtube !nvim !twitter !discord !roll !keyboard !spec !time !tts !terminal !keyboard !os !editor"
+	TextCommands["!commands"] = "!top10 !roll !quote !vpn !freetrial !youtube !nvim !x !discord !roll !keyboard !spec !time !tts !terminal !keyboard !os !editor"
 }
 
 func CheckCustomReward(U *User, msg tirc.PrivateMessage) (success bool) {

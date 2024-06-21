@@ -38,6 +38,7 @@ func main() {
 		log.Fatal(err)
 		os.Exit(1)
 	}
+
 	mongowrapper.InitCollections()
 
 	InitTwitchClient()

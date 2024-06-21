@@ -74,24 +74,25 @@ func (C *IRC_CLIENT) POST_INFO() {
 		}
 		monitor <- 1337
 	}()
+	time.Sleep(1 * time.Hour)
 
 	if C.Client != nil {
 
-		returnText, ok := TextCommands["!twitter"]
+		returnText, ok := TextCommands["!x"]
 		if ok {
 			TWITCH_CLIENT.Reply(returnText, "")
 		}
+		time.Sleep(30 * time.Second)
 		returnText, ok = TextCommands["!discord"]
 		if ok {
 			TWITCH_CLIENT.Reply(returnText, "")
 		}
+		time.Sleep(30 * time.Second)
 		returnText, ok = TextCommands["!vpn"]
 		if ok {
 			TWITCH_CLIENT.Reply(returnText, "")
 		}
 	}
-
-	time.Sleep(1 * time.Hour)
 }
 
 func (C *IRC_CLIENT) Connect() {
@@ -117,6 +118,7 @@ func (C *IRC_CLIENT) Connect() {
 		C.JoinChannels()
 		time.Sleep(3 * time.Second)
 		go TWITCH_CLIENT.POST_INFO()
+		TWITCH_CLIENT.Reply("BOT ONLINE!", "")
 	}()
 
 	err := C.Client.Connect()
@@ -368,7 +370,6 @@ func CreateAPIClient() {
 		ClientSecret:   os.Getenv("CLIENT_SECRET"),
 		ClientID:       os.Getenv("CLIENT_ID"),
 	})
-
 	if err != nil {
 		log.Println("UNABLE TO CREATE API CLIENT: ", err)
 	}
