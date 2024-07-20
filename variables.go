@@ -58,6 +58,7 @@ func InitCommands() {
 	TextCommands["!spec"] = "... the best cpu. literally a super computer from space."
 	TextCommands["!youtube"] = "https://www.youtube.com/@keyb1nd"
 	TextCommands["!lurk"] = "ABSOLUTELY NOT ... LURKING IS NOT ALLOWED IN HERE"
+	TextCommands["!signal"] = "https://signal.group/#CjQKILCHWDqtfKErs-6yV8i0kQHhScDTL4wQ2mW7JYoQoBLsEhC7R4AqmLxdxwdRa0fWK1tD"
 
 	// VPN RELATED
 	TextCommands["!freetrial"] = "All new accounts get 24 hours free trial > https://www.nicelandvpn.is/#/register"

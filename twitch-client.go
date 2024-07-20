@@ -204,6 +204,8 @@ func ProcessMessage(msg tirc.PrivateMessage) {
 		return
 	}
 
+	if strings.Contains
+
 	// if strings.Contains(msg.Message, "!tts") {
 	// 	go CustomTTS(*U, msg)
 	// 	return
