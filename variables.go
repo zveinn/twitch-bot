@@ -70,10 +70,10 @@ func InitCommands() {
 }
 
 func CheckCustomReward(U *User, msg tirc.PrivateMessage) (success bool) {
-	// if msg.CustomRewardID == "8444968a-be3c-4d89-b6e7-dbbdedf64e1f" {
-	// 	go PlayTTS(msg.Message)
-	// 	return true
-	// }
+	if msg.CustomRewardID == "8444968a-be3c-4d89-b6e7-dbbdedf64e1f" {
+		go PlaceEventOnSoundQueue("tts", msg.Message)
+		return true
+	}
 	if msg.CustomRewardID == "323be4d7-63e6-4f2d-ad99-246f19c9ebd7" {
 		_ = IncrementUserPoints(U, 100)
 		TWITCH_CLIENT.ReplyToUser(msg.User.DisplayName, "Redeemed 100 points!", "")

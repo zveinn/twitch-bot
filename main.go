@@ -22,6 +22,37 @@ var (
 	MP3Map       = make(map[string]string)
 	EmoteMap     = make(map[string]helix.Emote)
 )
+
+var SoundQueue = make(chan SoundEvent, 1000)
+
+type SoundEvent struct {
+	// mp3/tts
+	T    string
+	Data string
+}
+
+func ProcessSoundEvents() {
+	defer func() {
+		r := recover()
+		if r != nil {
+			log.Println(r)
+		}
+		monitor <- 7
+	}()
+
+	for s := range SoundQueue {
+		fmt.Printf("SOUND QUEUE: len(%d), max(%d)", len(SoundQueue), cap(SoundQueue))
+		switch s.T {
+		case "mp3":
+			PlayMP3(s.Data)
+		case "tts":
+			PlayTTS(s.Data)
+		default:
+			fmt.Println("UKNOWN SOUND EVENT", s)
+		}
+	}
+}
+
 var TWITCH_CLIENT = new(IRC_CLIENT)
 
 func main() {
@@ -55,6 +86,7 @@ func main() {
 
 	GetGlobalEmotes()
 	TWITCH_CLIENT.GetAllChannelEmotes()
+	go ProcessSoundEvents()
 
 	// go RenewTokensLoop()
 
@@ -72,6 +104,8 @@ func main() {
 				go RenewTokensLoop()
 			} else if ID == 1337 {
 				go TWITCH_CLIENT.POST_INFO()
+			} else if ID == 11 {
+				go ProcessSoundEvents()
 			}
 
 		default:

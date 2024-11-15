@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"math/rand"
@@ -127,6 +128,21 @@ func (C *IRC_CLIENT) Connect() {
 	}
 }
 
+func PlaceEventOnSoundQueue(t string, data string) {
+	select {
+	case SoundQueue <- SoundEvent{
+		T:    t,
+		Data: data,
+	}:
+	default:
+		fmt.Println("SOUND QUEUE FULL")
+		fmt.Println("SOUND QUEUE FULL")
+		fmt.Println("SOUND QUEUE FULL")
+		fmt.Println("SOUND QUEUE FULL")
+	}
+	return
+}
+
 func (C *IRC_CLIENT) JoinChannels() {
 	for _, v := range C.ChannelMap {
 		log.Println("JOINING CHANNEL: ", v)
@@ -195,7 +211,8 @@ func ProcessMessage(msg tirc.PrivateMessage) {
 
 	mp3, ok := MP3Map[msg.CustomRewardID]
 	if ok {
-		go PlaySound(mp3)
+		go PlaceEventOnSoundQueue("mp3", mp3)
+		// go PlayMP3(mp3)
 		return
 	}
 
@@ -291,7 +308,7 @@ func RandQuote(msg *tirc.PrivateMessage) {
 	TWITCH_CLIENT.Reply(selectedMSG.User.DisplayName+" '' "+outMSG+" '' - "+selectedMSG.Time.Format("Mon 02 Jan 15:04:05 MST 2006"), "")
 }
 
-func PlaySound(tag string) {
+func PlayMP3(tag string) {
 	// cmd := exec.Command("ffplay", "-v", "0", "-nodisp", "-autoexit", "./mp3/"+tag+".mp3")
 	// out, err := cmd.CombinedOutput()
 	// if err != nil {
