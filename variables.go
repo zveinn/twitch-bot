@@ -33,6 +33,7 @@ func InitMP3Map() {
 	MP3Map["2a174cdd-a444-434e-af31-9e6a598944de"] = "come-after-you"
 	MP3Map["5a78d388-6757-422b-a348-9ce983f34cb3"] = "hey-listen"
 	MP3Map["1594a455-4a84-4a8b-a562-ac830c423d81"] = "excellent"
+	MP3Map["b714ac5a-e6a4-4cf5-9ea0-385c67a168b8"] = "blabla"
 }
 
 func InitTwitchClient() {
@@ -62,9 +63,10 @@ func InitCommands() {
 
 	// VPN RELATED
 	TextCommands["!freetrial"] = "All new accounts get 24 hours free trial > https://www.nicelandvpn.is/#/register"
-	TextCommands["!vpn"] = "NicelandVPN >> 24/h Free Trial >> Anonymous Accounts >> NO CARD INFO NEEDED! >>> https://nicelandvpn.is"
+	TextCommands["!vpn"] = "Tunnels.is >> 24/h Free Trial >> Anonymous Accounts >> NO CARD INFO NEEDED! >>> https://tunnels.is"
+	TextCommands["!vpndiscord"] = "Tunnels.is DISCORD: https://discord.com/invite/7Ts3PCnCd9"
 
-	TextCommands["!commands"] = "!top10 !roll !quote !vpn !freetrial !youtube !nvim !x !discord !roll !keyboard !spec !time !tts !terminal !keyboard !os !editor"
+	TextCommands["!commands"] = "lol.. just guess"
 }
 
 func CheckCustomReward(U *User, msg tirc.PrivateMessage) (success bool) {

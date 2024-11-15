@@ -35,8 +35,8 @@ func RenewTokensLoop() {
 	}()
 
 	for {
-		time.Sleep(1 * time.Hour)
 		RenewTokens()
+		time.Sleep(1 * time.Hour)
 	}
 }
 

@@ -204,7 +204,23 @@ func ProcessMessage(msg tirc.PrivateMessage) {
 		return
 	}
 
-	if strings.Contains
+	// banword := ""
+	// isBanned := false
+	// if strings.Contains(msg.Message, " tailwind ") || strings.HasPrefix(msg.Message, "tailwind") {
+	// 	banword = "tailwind"
+	// 	isBanned = true
+	// }
+
+	// if strings.Contains(msg.Message, " rust ") || strings.HasPrefix(msg.Message, "rust") {
+	// 	banword = "rust"
+	// 	isBanned = true
+	// }
+
+	// if isBanned {
+	// 	TWITCH_CLIENT.ReplyToUser(msg.User.DisplayName, "You said a naughty word: "+banword+" -1000 points for you.", "")
+	// 	_ = IncrementUserPoints(U, -1000)
+	// 	return
+	// }
 
 	// if strings.Contains(msg.Message, "!tts") {
 	// 	go CustomTTS(*U, msg)
