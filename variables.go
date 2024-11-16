@@ -48,25 +48,32 @@ func InitTwitchClient() {
 func InitCommands() {
 	// TextCommands["!monero"] = "43V6N2BpjvMYUthyqLioafZ2MQQviWEhvVTpp3hHc6LB48WYE8SsjrJKyyYzR3AYu2HkSXu8xsJhr7wdLsgSc8mGDDTkCrn"
 	TextCommands["!nvim"] = "https://github.com/zveinn/dotfiles"
+	TextCommands["!dotfiles"] = "https://github.com/zveinn/dotfiles"
 	TextCommands["!x"] = "https://x.com/keyb1nd"
 	TextCommands["!github"] = "https://github.com/zveinn"
 	TextCommands["!linkedin"] = "https://www.linkedin.com/in/keyb1nd/"
 	TextCommands["!discord"] = "https://discord.com/invite/wJ5m3Y6ezq"
-	TextCommands["!keyboard"] = "https://x.com/keyb1nd/status/1589688621619351552"
-	TextCommands["!os"] = "Debian 12 kde"
+	TextCommands["!keyboard"] = "wooting.io"
+	TextCommands["!os"] = "All of them."
 	TextCommands["!terminal"] = "wezterm + tmux"
 	TextCommands["!editor"] = "nvim"
-	TextCommands["!spec"] = "... the best cpu. literally a super computer from space."
-	TextCommands["!youtube"] = "https://www.youtube.com/@keyb1nd"
+	TextCommands["!youtube"] = "https://www.youtube.com/@keyb1nd?sub_confirmation=1"
 	TextCommands["!lurk"] = "ABSOLUTELY NOT ... LURKING IS NOT ALLOWED IN HERE"
 	TextCommands["!signal"] = "https://signal.group/#CjQKILCHWDqtfKErs-6yV8i0kQHhScDTL4wQ2mW7JYoQoBLsEhC7R4AqmLxdxwdRa0fWK1tD"
 
 	// VPN RELATED
-	TextCommands["!freetrial"] = "All new accounts get 24 hours free trial > https://www.nicelandvpn.is/#/register"
-	TextCommands["!vpn"] = "Tunnels.is >> 24/h Free Trial >> Anonymous Accounts >> NO CARD INFO NEEDED! >>> https://tunnels.is"
+	TextCommands["!freetrial"] = "All new accounts get 24 hours free trial > https://www.tunnels.is"
+	TextCommands["!vpn"] = "Tunnels.is >> Advanced Networking Utility >> 24/h Free Trial >> https://tunnels.is"
 	TextCommands["!vpndiscord"] = "Tunnels.is DISCORD: https://discord.com/invite/7Ts3PCnCd9"
 
-	TextCommands["!commands"] = "lol.. just guess"
+	TextCommands["!cmd"] += "!tts !roll !points !quote !top10"
+	TextCommands["!commands"] += "!tts !roll !points !quote !top10"
+
+	for i := range TextCommands {
+		TextCommands["!cmd"] += " " + i
+		TextCommands["!commands"] += " " + i
+	}
+
 }
 
 func CheckCustomReward(U *User, msg tirc.PrivateMessage) (success bool) {

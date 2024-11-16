@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -8,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"runtime/debug"
 	"strconv"
 	"strings"
@@ -16,9 +17,11 @@ import (
 	"time"
 
 	tirc "github.com/gempir/go-twitch-irc/v4"
+	"github.com/google/uuid"
 	"github.com/gopxl/beep"
 	"github.com/gopxl/beep/mp3"
 	"github.com/gopxl/beep/speaker"
+	"github.com/gopxl/beep/wav"
 	"github.com/nicklaw5/helix"
 )
 
@@ -190,12 +193,12 @@ func ProcessMessage(msg tirc.PrivateMessage) {
 		U.ID = msg.User.ID
 		U.Color = msg.User.Color
 		U.Badges = msg.User.Badges
-		err = IncrementUserPoints(U, 100)
+		err = IncrementUserPoints(U, 500)
 		if err == nil {
 			U.Points = 100
 		}
 	} else {
-		_ = IncrementUserPoints(U, 1)
+		_ = IncrementUserPoints(U, 5)
 	}
 
 	log.Println("CUSTOM REWARD ID:", msg.CustomRewardID)
@@ -218,6 +221,13 @@ func ProcessMessage(msg tirc.PrivateMessage) {
 
 	if strings.Contains(msg.Message, "!time") {
 		TWITCH_CLIENT.Reply(time.Now().Format(time.RFC3339), "")
+		return
+	}
+
+	if strings.Contains(msg.Message, "!bot") {
+		if msg.User.DisplayName == "KEYB1ND_" {
+			go askTheBot(msg.Message)
+		}
 		return
 	}
 
@@ -361,7 +371,7 @@ func UserRollCommand(user *User, msg *tirc.PrivateMessage) (err error) {
 		return
 	}
 
-	if user.Points < rollAmount {
+	if user.Points < rollAmount || rollAmount < 0 {
 		TWITCH_CLIENT.ReplyToUser(msg.User.DisplayName, "you do not have enough points to gamba", "")
 		return
 	}
@@ -473,12 +483,6 @@ func PlayTTS(msg string) {
 
 	params := url.Values{}
 	params.Add("text", msg)
-	fileName := ""
-	if len(msg) < 25 {
-		fileName = msg
-	} else {
-		fileName = msg[0:20]
-	}
 
 	httpClient := new(http.Client)
 	// urlmsg := url.QueryEscape(msg)
@@ -498,21 +502,182 @@ func PlayTTS(msg string) {
 		log.Println(err)
 		return
 	}
-	f, err := os.Create("./tts/" + fileName + "-" + strconv.Itoa(int(time.Now().UnixNano())) + ".wav")
+
+	fileName := uuid.NewString() + "-" + strconv.Itoa(int(time.Now().UnixNano()))
+
+	f, err := os.Create("./tts/" + fileName + ".wav")
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	defer f.Close()
+	f2, err := os.Create("./tts/" + fileName + ".txt")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer f2.Close()
 	_, err = f.Write(bytes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	_, err = f2.Write([]byte(msg))
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	log.Println("BYTES:", len(bytes))
 
-	cmd := exec.Command("ffplay", "-v", "0", "-nodisp", "-autoexit", f.Name())
-	out, err := cmd.CombinedOutput()
+	PlayTTSFile(f.Name())
+}
+
+func PlayTTSFile(tag string) {
+	f, err := os.Open(tag)
 	if err != nil {
-		log.Println(err, string(out))
+		log.Println("error opening tts file:", err)
+		return
 	}
+
+	streamer, format, err := wav.Decode(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer streamer.Close()
+
+	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+	done := make(chan bool)
+	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
+		done <- true
+	})))
+
+	<-done
+}
+
+type BotModel struct {
+	Model     string    `json:"model"`
+	Prompt    string    `json:"prompt"`
+	Stream    bool      `json:"stream"`
+	Options   *BotOpts  `json:"options"`
+	MaxTokens int       `json:"max_tokens"`
+	Messages  []*BotMSG `json:"messages"`
+}
+
+type BotMSG struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+type BotOpts struct {
+	Temperature float64 `json:"temperature"`
+	// TopP        float64 `json:"top_p"`
+	// TopK        int     `json:"top_k"`
+	// MinP        float64 `json:"min_p"`
+	// NumPredict  int     `json:"num_predict"`
+}
+
+type BotResp struct {
+	Model              string    `json:"model"`
+	CreatedAt          time.Time `json:"created_at"`
+	Response           string    `json:"response"`
+	Done               bool      `json:"done"`
+	Context            []int     `json:"context"`
+	TotalDuration      int64     `json:"total_duration"`
+	LoadDuration       int       `json:"load_duration"`
+	PromptEvalCount    int       `json:"prompt_eval_count"`
+	PromptEvalDuration int       `json:"prompt_eval_duration"`
+	EvalCount          int       `json:"eval_count"`
+	EvalDuration       int64     `json:"eval_duration"`
+}
+
+type BotRespChat struct {
+	Message *BotMSG `json:"message"`
+}
+
+var BaseMSG = make([]*BotMSG, 0)
+
+func INIT_MSG() {
+	BaseMSG = append(BaseMSG, &BotMSG{
+		Role:    "user",
+		Content: "I want you to refer to me as Key from now on.",
+	})
+	BaseMSG = append(BaseMSG, &BotMSG{
+		Role:    "assistant",
+		Content: "I will refer to you as key from now on.",
+	})
+	BaseMSG = append(BaseMSG, &BotMSG{
+		Role:    "user",
+		Content: "I want you to pretend to be evil, be subtle about it but try to be a bit snarky with your replies. Also, try to make fun of me in subtle ways when possible, don't over do it though.",
+	})
+	BaseMSG = append(BaseMSG, &BotMSG{
+		Role:    "assistant",
+		Content: "I will do that",
+	})
+	BaseMSG = append(BaseMSG, &BotMSG{
+		Role:    "user",
+		Content: "Please try to keep your answers short.",
+	})
+	BaseMSG = append(BaseMSG, &BotMSG{
+		Role:    "assistant",
+		Content: "I will do that",
+	})
+
+}
+
+func askTheBot(msg string) {
+	ms := strings.Split(msg, " ")
+	m := strings.Join(ms[1:], " ")
+
+	BaseMSG = append(BaseMSG, &BotMSG{
+		Role:    "user",
+		Content: m,
+	})
+
+	BM := new(BotModel)
+	BM.Model = "mannix/llama3.1-8b-abliterated"
+	// BM.Prompt = m
+	BM.Messages = BaseMSG
+	BM.Stream = false
+	BM.Options = new(BotOpts)
+	BM.Options.Temperature = 0.8
+	BM.MaxTokens = 50
+
+	ob, err := json.Marshal(BM)
+
+	httpClient := new(http.Client)
+	buff := bytes.NewBuffer(ob)
+
+	// urlmsg := url.QueryEscape(msg)
+	// req, err := http.NewRequest("POST", "http://localhost:11434/api/generate", buff)
+	req, err := http.NewRequest("POST", "http://localhost:11434/api/chat", buff)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	bytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	fmt.Println(string(bytes))
+	BR := new(BotRespChat)
+	err = json.Unmarshal(bytes, BR)
+	if err != nil {
+		fmt.Println("lama resp err:", err)
+		return
+	}
+
+	BaseMSG = append(BaseMSG, BR.Message)
+
+	fmt.Println(BR.Message.Content)
+	PlayTTS(BR.Message.Content)
+
 }

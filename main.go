@@ -73,6 +73,7 @@ func main() {
 	mongowrapper.InitCollections()
 
 	InitTwitchClient()
+	INIT_MSG()
 
 	InitCommands()
 	InitMP3Map()
