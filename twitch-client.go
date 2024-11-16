@@ -451,7 +451,7 @@ func GetChannelEmotes(BroadCasterID string) {
 // python3 TTS/server/server.py --vocoder_name vocoder_models/en/ljspeech/hifigan_v2
 // jenny is good too
 func CustomTTS(user User, msg tirc.PrivateMessage) {
-	if user.Points < 80 {
+	if user.Points < 50 {
 		TWITCH_CLIENT.ReplyToUser(user.DisplayName, "You need 200 points for TTS", "")
 		return
 	}
@@ -462,7 +462,7 @@ func CustomTTS(user User, msg tirc.PrivateMessage) {
 		return
 	}
 
-	err := IncrementUserPoints(&user, -80)
+	err := IncrementUserPoints(&user, -50)
 	if err != nil {
 		TWITCH_CLIENT.ReplyToUser(user.DisplayName, "We could not play your sound clip!", "")
 		return
@@ -545,7 +545,7 @@ func PlayTTSFile(tag string) {
 	}
 	defer streamer.Close()
 
-	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second))
 	done := make(chan bool)
 	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
 		done <- true
@@ -621,7 +621,6 @@ func INIT_MSG() {
 		Role:    "assistant",
 		Content: "I will do that",
 	})
-
 }
 
 func askTheBot(msg string) {
@@ -644,11 +643,10 @@ func askTheBot(msg string) {
 
 	ob, err := json.Marshal(BM)
 
-	httpClient := new(http.Client)
 	buff := bytes.NewBuffer(ob)
 
-	// urlmsg := url.QueryEscape(msg)
 	// req, err := http.NewRequest("POST", "http://localhost:11434/api/generate", buff)
+	httpClient := new(http.Client)
 	req, err := http.NewRequest("POST", "http://localhost:11434/api/chat", buff)
 	if err != nil {
 		log.Println(err)
@@ -667,10 +665,10 @@ func askTheBot(msg string) {
 		return
 	}
 
-	fmt.Println(string(bytes))
 	BR := new(BotRespChat)
 	err = json.Unmarshal(bytes, BR)
 	if err != nil {
+		fmt.Println(string(bytes))
 		fmt.Println("lama resp err:", err)
 		return
 	}
@@ -679,5 +677,4 @@ func askTheBot(msg string) {
 
 	fmt.Println(BR.Message.Content)
 	PlayTTS(BR.Message.Content)
-
 }
