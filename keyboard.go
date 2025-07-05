@@ -2,15 +2,6 @@
 
 package main
 
-import (
-	"fmt"
-	"log"
-	"syscall"
-	"time"
-
-	"github.com/zveinn/twitch-bot/mic"
-)
-
 const (
 	// Add more keys as constants here if needed
 	VK_LBUTTON  = 0x01 // Left mouse button
@@ -86,31 +77,3 @@ const (
 	VK_APPS  = 0x5D // Applications key (Natural keyboard)
 	VK_SLEEP = 0x5F // Computer Sleep key
 )
-
-func captureKeys() {
-	defer func() {
-		r := recover()
-		if r != nil {
-			log.Println(r)
-		}
-		monitor <- 13
-	}()
-
-	user32 := syscall.NewLazyDLL("user32.dll")
-	getAsyncKeyState := user32.NewProc("GetAsyncKeyState")
-
-	fmt.Println("Listening for key presses... Press Ctrl+C to exit.")
-
-	for {
-		for _, vkCode := range []int{VK_XBUTTON2} {
-			r1, _, _ := getAsyncKeyState.Call(uintptr(vkCode))
-			if r1&0x8000 != 0 { // Check if the key is down
-				fmt.Printf("Key %#x is down\n", vkCode)
-				x := mic.TalkToEve()
-				fmt.Println("POST TRANSCRIBE: ", x)
-				PlaceBotEventInQueue("eve", x, x)
-			}
-		}
-		time.Sleep(time.Millisecond * 50) // To prevent excessive CPU usage
-	}
-}

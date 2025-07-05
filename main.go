@@ -89,8 +89,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	// MakeNewToken()
-	// os.Exit(1)
+	MakeNewToken()
+	os.Exit(1)
 
 	fmt.Println("MONGO CONNECTING:", os.Getenv("DB"))
 	err = mongowrapper.Connect(os.Getenv("DB"))

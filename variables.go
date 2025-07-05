@@ -46,17 +46,15 @@ func InitTwitchClient() {
 }
 
 func InitCommands() {
-	// TextCommands["!monero"] = "43V6N2BpjvMYUthyqLioafZ2MQQviWEhvVTpp3hHc6LB48WYE8SsjrJKyyYzR3AYu2HkSXu8xsJhr7wdLsgSc8mGDDTkCrn"
-	TextCommands["!nvim"] = "https://github.com/zveinn/dotfiles"
+	TextCommands["!helix"] = "https://github.com/zveinn/dotfiles"
 	TextCommands["!dotfiles"] = "https://github.com/zveinn/dotfiles"
 	TextCommands["!x"] = "https://x.com/keyb1nd"
 	TextCommands["!github"] = "https://github.com/zveinn"
 	TextCommands["!linkedin"] = "https://www.linkedin.com/in/keyb1nd/"
 	TextCommands["!discord"] = "https://discord.com/invite/wJ5m3Y6ezq"
-	TextCommands["!keyboard"] = "wooting.io"
+	TextCommands["!keyboard"] = "Keychron split keyboard"
 	TextCommands["!os"] = "All of them."
-	TextCommands["!terminal"] = "wezterm + tmux"
-	TextCommands["!editor"] = "nvim"
+	TextCommands["!editor"] = "helix"
 	TextCommands["!youtube"] = "https://www.youtube.com/@keyb1nd?sub_confirmation=1"
 	TextCommands["!lurk"] = "ABSOLUTELY NOT ... LURKING IS NOT ALLOWED IN HERE"
 	TextCommands["!signal"] = "https://signal.group/#CjQKILCHWDqtfKErs-6yV8i0kQHhScDTL4wQ2mW7JYoQoBLsEhC7R4AqmLxdxwdRa0fWK1tD"
@@ -76,7 +74,6 @@ func InitCommands() {
 		TextCommands["!cmd"] += " " + i
 		TextCommands["!commands"] += " " + i
 	}
-
 }
 
 func CheckCustomReward(U *User, msg tirc.PrivateMessage) (success bool) {
